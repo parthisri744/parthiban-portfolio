@@ -12,14 +12,37 @@
 
     <style>
         :root {
+            /* Dark theme defaults */
             --bg: #0b0c10;
             --panel: #111319;
             --text: #e8ecf1;
             --muted: #a9b2c1;
             --brand: #5b8cff;
             --brand-2: #9b6bff;
+            --grad-1: rgba(59, 130, 246, 0.25);
+            /* blue glow */
+            --grad-2: rgba(139, 92, 246, 0.25);
+            /* purple glow */
             --radius: 16px;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        html[data-theme="light"]:root {
+            --bg: #f7f8fb;
+            --panel: #ffffff;
+            --text: #1b2430;
+            --muted: #536175;
+            --brand: #2f6bff;
+            --brand-2: #7a3cff;
+            --grad-1: rgba(47, 107, 255, 0.15);
+            /* softer blue glow */
+            --grad-2: rgba(122, 60, 255, 0.15);
+            /* softer purple glow */
+            --shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+        }
+
+        html[data-theme="auto"]:root {
+            color-scheme: light dark;
         }
 
         @media (prefers-color-scheme: light) {
@@ -30,29 +53,30 @@
                 --muted: #536175;
                 --brand: #2f6bff;
                 --brand-2: #7a3cff;
+                --grad-1: rgba(47, 107, 255, 0.15);
+                --grad-2: rgba(122, 60, 255, 0.15);
                 --shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
             }
         }
 
+        /* Apply background */
         html,
         body {
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI,
-                Roboto, Helvetica, Arial;
+            font-family: "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
             color: var(--text);
             background:
-                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 60%),
-                linear-gradient(135deg, #f8fafc, #e5e7eb);
+                radial-gradient(circle at 20% 20%, var(--grad-1) 0%, transparent 60%),
+                radial-gradient(circle at 80% 80%, var(--grad-2) 0%, transparent 60%),
+                var(--bg);
             background-repeat: no-repeat;
             background-attachment: fixed;
             scroll-behavior: smooth;
             line-height: 1.6;
-            animation: bgShift 15s ease-in-out infinite alternate;
+            transition: background 0.6s ease, color 0.6s ease;
         }
-
 
         a {
             text-decoration: none;
@@ -536,6 +560,19 @@
                 margin-top: 24px;
             }
         }
+
+        .theme-toggle {
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle .icon svg {
+            color: var(--muted);
+            width: 18px;
+            height: 18px;
+        }
     </style>
 </head>
 
@@ -553,7 +590,10 @@
                 <a href="#experience">Experience</a>
                 <a href="#contact">Contact</a>
             </nav>
-            <button class="btn" onclick="cycleTheme()">Theme</button>
+            <button class="btn theme-toggle" onclick="cycleTheme()">
+                <span class="icon"></span>
+                <span class="label">Theme</span>
+            </button>
         </div>
     </header>
 
@@ -1040,17 +1080,67 @@
     <footer>&copy; 2025 Parthiban S. All rights reserved.</footer>
 
     <script>
+        function updateThemeButton(theme) {
+            const btn = document.querySelector(".theme-toggle");
+            const icon = btn.querySelector(".icon");
+            const label = btn.querySelector(".label");
+
+            let svg = "";
+            let text = "";
+
+            switch (theme) {
+                case "light":
+                    svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v2m0 14v2m9-9h-2M5 12H3
+               m15.364 6.364l-1.414-1.414M6.05 6.05L4.636 4.636
+               m12.728 0l-1.414 1.414M6.05 17.95l-1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"/>
+        </svg>`;
+                    text = "Light";
+                    break;
+
+                case "dark":
+                    svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 12.79A9 9 0 1111.21 3
+               a7 7 0 009.79 9.79z"/>
+        </svg>`;
+                    text = "Dark";
+                    break;
+
+                default: // auto
+                    svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v1m0 16v1m8.66-12.66l-.71.71M4.05 19.95l-.71.71
+               m16.97-.71l-.71-.71M4.76 4.76l-.71-.71M21 12h1M2 12H1
+               m11-9a9 9 0 100 18 9 9 0 000-18z"/>
+        </svg>`;
+                    text = "Auto";
+            }
+
+            icon.innerHTML = svg;
+            label.textContent = text;
+        }
+
         function cycleTheme() {
-            const cur =
-                document.documentElement.getAttribute("data-theme") || "auto";
-            const next =
-                cur === "auto" ? "dark" : cur === "dark" ? "light" : "auto";
+            const cur = document.documentElement.getAttribute("data-theme") || "auto";
+            const next = cur === "auto" ? "dark" : cur === "dark" ? "light" : "auto";
             document.documentElement.setAttribute("data-theme", next);
             localStorage.setItem("theme", next);
+            updateThemeButton(next);
         }
+
+        // Initialize on load
         (function initTheme() {
-            const saved = localStorage.getItem("theme");
-            if (saved) document.documentElement.setAttribute("data-theme", saved);
+            const saved = localStorage.getItem("theme") || "auto";
+            document.documentElement.setAttribute("data-theme", saved);
+            updateThemeButton(saved);
         })();
     </script>
 </body>
