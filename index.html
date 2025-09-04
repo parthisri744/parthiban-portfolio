@@ -573,6 +573,91 @@
             width: 18px;
             height: 18px;
         }
+
+        /* Nav links */
+        .nav-links a {
+            position: relative;
+            padding: 0.25rem 0;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 0;
+            height: 2px;
+            background: var(--primary-color, #3b82f6);
+            /* Blue fallback */
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color, #3b82f6);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.4rem 0.8rem;
+            border: 1px solid var(--border-color, #d1d5db);
+            background: transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--primary-color, #3b82f6);
+            background: rgba(59, 130, 246, 0.1);
+            /* light blue background */
+            color: var(--primary-color, #3b82f6);
+        }
+
+        .theme-toggle .icon svg {
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover .icon svg {
+            transform: rotate(20deg) scale(1.1);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--brand);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .scroll-top:hover {
+            background: var(--brand-2);
+            transform: translateY(-4px);
+        }
+
+        .scroll-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 
@@ -1078,7 +1163,12 @@
     </main>
 
     <footer>&copy; 2025 Parthiban S. All rights reserved.</footer>
-
+    <button id="scrollTopBtn" class="scroll-top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+        </svg>
+    </button>
     <script>
         function updateThemeButton(theme) {
             const btn = document.querySelector(".theme-toggle");
@@ -1142,6 +1232,20 @@
             document.documentElement.setAttribute("data-theme", saved);
             updateThemeButton(saved);
         })();
+
+        const scrollBtn = document.getElementById("scrollTopBtn");
+
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                scrollBtn.classList.add("show");
+            } else {
+                scrollBtn.classList.remove("show");
+            }
+        });
+
+        scrollBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
     </script>
 </body>
 
